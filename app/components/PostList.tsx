@@ -5,9 +5,12 @@ import MarkdownRenderer from './MarkdownRenderer';
 import { Button } from 'antd';
 import AddIssueModal from './AddIssueModal';
 import EditIssueModal from './EditIssueModal';
+import RemoveArticleBtn from './RemoveArticleBtn';
+import { useRouter } from 'next/router';
+
 
 interface Post {
-  id: number;
+  id: string;
   title: string;
   body: string;
 }
@@ -18,10 +21,13 @@ interface PostListProps {
 
 const PostList: React.FC<PostListProps> = ({user}) => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [openEditModalId, setOpenEditModalId] = useState<number>();
+  const [openEditModalId, setOpenEditModalId] = useState<string>();
   // const [page, setPage] = useState(0);
+  const [needUpdate, setNeedUpdate] = useState(true);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [cursor, setCursor] = useState("");
+  // const router = useRouter();
+
   
   const handleScroll = async () => {
     const scrollY = window.scrollY;
@@ -40,8 +46,23 @@ const PostList: React.FC<PostListProps> = ({user}) => {
 
   }
 
+  const handleUpdateOperation = () => {
+
+  }
+
+  const handleOnRemoveUpdate = async({postId}: {postId: string}) => {
+    // setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+    // router.reload();    
+    // setPosts((prevPosts) =>
+    //   prevPosts.map((post) => (post.id === updatedPostId ? updatedPost : post))
+    // );
+    // console.log("update");
+  }
+
   useEffect(() => {
     const loadPosts = async () => {
+      setCursor("");
+      setHasNextPage(false);
       const fetchedPosts = await fetchPosts({cursor: cursor});
       if(fetchedPosts) { 
         setPosts(fetchedPosts.issues);
@@ -50,7 +71,8 @@ const PostList: React.FC<PostListProps> = ({user}) => {
       }
     };
     loadPosts();
-  }, []);
+    setNeedUpdate(false);
+  }, [needUpdate]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
@@ -69,11 +91,16 @@ const PostList: React.FC<PostListProps> = ({user}) => {
         <div key={post.id}>
           <h3>{post.title}</h3>
           <MarkdownRenderer content={post.body} />
-          <Button onClick={() => setOpenEditModalId(post.id)}/>
-          {author === user ? <EditIssueModal />: null}
+          {/* <Button onClick={() => setOpenEditModalId(post.id)}/> */}
+          { author === user ? 
+            <> 
+              <EditIssueModal id={post.id} title={post.title} body={post.body} onEditSubmit={() => {setNeedUpdate(true)}} /> 
+              <RemoveArticleBtn issueId={post.id} onRemove={() => {setNeedUpdate(true)}} /> 
+            </> : null }
+
         </div>
       ))}
-      {author === user ? <AddIssueModal />: null}
+      { author === user ? <AddIssueModal onAdd={() => {setNeedUpdate(true)}} /> : null }
     </div>
     
   );

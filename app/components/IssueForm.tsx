@@ -3,9 +3,11 @@ import { FormInstance } from "antd";
 
 interface issueFormProp {
   form: FormInstance;
+  initialValues: {};
 }
 
-const IssueForm: React.FC<issueFormProp> = ({form}) => {
+const IssueForm: React.FC<issueFormProp> = ({form, initialValues}) => {
+
 
   const validateTextLength = (_: any, value: string) => {
     // Validate that the input contains more than thirty words
@@ -25,6 +27,7 @@ const IssueForm: React.FC<issueFormProp> = ({form}) => {
       // onFinish={onFinish}
       form={form}
       style={{ maxWidth: 600 }}
+      initialValues={initialValues}
       // validateMessages={validateMessages}
     >
       <Form.Item name="title" label="Title" rules={[{ required: true }]}>

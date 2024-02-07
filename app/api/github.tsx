@@ -11,7 +11,7 @@ const API_BASE_URL = 'https://api.github.com/graphql';
 const ISSUES_QUERY = `
   query($owner: String!, $repo: String!, $after: String) {
     repository(owner: $owner, name: $repo) {
-      issues(first: 10, after: $after) {
+      issues(states: [OPEN], first: 10, after: $after) {
         nodes {
           id
           title
@@ -40,7 +40,7 @@ const ISSUE_BY_ID_QUERY = `
 `;
 
 interface Post {
-  id: number;
+  id: string;
   title: string;
   body: string;
 }
@@ -48,7 +48,7 @@ interface fetchPostsProps {
   cursor: string;
 }
 interface FormattedIssue {
-  id: number;
+  id: string;
   title: string;
   body: string;
 }
@@ -83,7 +83,7 @@ export const fetchPosts = async ({ cursor }: fetchPostsProps): Promise<Formatted
         },
       }
     );
-    console.log(response.data.data.repository.issues);
+    // console.log(response.data.data.repository.issues);
     const issues = response.data.data.repository.issues.nodes;
     const pageInfo = response.data.data.repository.issues.pageInfo;
     
@@ -93,7 +93,7 @@ export const fetchPosts = async ({ cursor }: fetchPostsProps): Promise<Formatted
     //   body: issue.body,
     // }));
     const formattedPageInfo: FormattedPageInfo = pageInfo;
-    console.log(formattedPageInfo)
+    // console.log(formattedPageInfo)
     const formattedIssues: FormattedIssue[] = issues.map((issue: any) => ({
       id: issue.id,
       title: issue.title,
@@ -110,7 +110,11 @@ export const fetchPosts = async ({ cursor }: fetchPostsProps): Promise<Formatted
   }
 };
 
-export const fetchPostById = async (id: string): Promise<Post | null> => {
+interface fetchPostByIdProps{
+  id: number;
+}
+
+export const fetchPostById = async ({id}: fetchPostByIdProps): Promise<Post | null> => {
   const session = await auth();
   try {
     const response = await axios.post(
@@ -118,8 +122,8 @@ export const fetchPostById = async (id: string): Promise<Post | null> => {
       {
         query: ISSUE_BY_ID_QUERY,
         variables: {
-          owner: 'owner_username',
-          repo: 'repository_name',
+          owner: 'Yao-Wen-Chang',
+          repo: '2024-Dcard_Frontend',
           issueId: id,
         },
       },
@@ -244,5 +248,100 @@ export const createIssue = async ({title, content, owner, repo}: createIssueProp
     return null;
   }
 };
+
+interface closeIssueProps {
+  issueId: string
+}
+
+export const closeIssue = async ({issueId} : closeIssueProps) => {
+  const session = await auth();
+  const query = `
+    mutation CloseIssue($issueId: ID!) {
+      closeIssue(input: { issueId: $issueId }) {
+        issue {
+          id
+          title
+          state
+        }
+      }
+    }
+  `;
+  const variables = {
+    issueId: issueId
+  };
+
+  try {
+    const response = await axios.post(
+      API_BASE_URL,
+      {
+        query: query,
+        variables: variables,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      }
+    );
+    // console.log('response:', response?.data.data.closeIssue)
+    // console.log('Closed Issue:', response?.data?.errors);
+
+  } catch (error) {
+    console.error('Error close issue:', error);
+    return null;
+  }
+};
+
+  
+interface updateIssueProps { 
+  issueId: string;
+  title: string;
+  body: string;
+}
+
+
+export const updateIssue = async ({issueId, title, body}: updateIssueProps) => {
+  const session = await auth();
+  console.log(issueId)
+  const query = `
+    mutation UpdateIssue($issueId: ID!, $title: String!, $body: String!) {
+      updateIssue(input: {id: $issueId, title: $title, body: $body}) {
+        issue {
+          id
+          title
+          body
+        }
+      }
+    }
+  `;
+  const variables = {
+    issueId: issueId,
+    title: title,
+    body: body,
+  };
+
+  try {
+    const response = await axios.post(
+      API_BASE_URL,
+      {
+        query: query,
+        variables: variables,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      }
+    );
+    console.log('response:', response?.data?.errors)
+    // console.log('Closed Issue:', response?.data?.errors);
+
+  } catch (error) {
+    console.error('Error update issue:', error);
+    return null;
+  }
+
+
+}
 
 

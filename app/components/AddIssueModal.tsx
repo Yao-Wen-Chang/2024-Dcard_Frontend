@@ -4,7 +4,12 @@ import { useForm } from 'antd/lib/form/Form';
 import { useState } from "react";
 import { createIssue } from "../api/github";
 
-const AddIssueModal: React.FC = () => {
+// type AddCallback = () => Promise<void>;
+interface AddIssueModalProps {
+  onAdd: () => void;
+}
+
+const AddIssueModal: React.FC<AddIssueModalProps> = ({onAdd}) => {
   const [isOpen, setIsOpen] = useState(false); 
   const [form] = useForm();
 
@@ -20,7 +25,10 @@ const AddIssueModal: React.FC = () => {
       owner: "Yao-Wen-Chang",
       repo: "2024-Dcard_Frontend"
     });
+    onAdd();
     setIsOpen(false);
+
+
 
   }
   return (
@@ -38,7 +46,7 @@ const AddIssueModal: React.FC = () => {
           </Button>,
         ]}
       >
-        <IssueForm form={form}/>
+        <IssueForm form={form} initialValues={{}} />
       </Modal>  
     </>
   );
