@@ -21,7 +21,7 @@ interface PostListProps {
 
 const PostList: React.FC<PostListProps> = ({user}) => {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [openEditModalId, setOpenEditModalId] = useState<string>();
+  // const [openEditModalId, setOpenEditModalId] = useState<string>();
   // const [page, setPage] = useState(0);
   const [needUpdate, setNeedUpdate] = useState(true);
   const [hasNextPage, setHasNextPage] = useState(false);
