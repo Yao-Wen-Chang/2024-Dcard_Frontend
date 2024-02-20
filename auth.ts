@@ -1,5 +1,5 @@
 import type { NextAuthConfig } from "next-auth"
-import NextAuth from "next-auth"
+import NextAuth, { type Session, type JWT } from "next-auth";
 import GitHub from "next-auth/providers/github"
 
 export const authConfig = {
@@ -16,7 +16,7 @@ export const authConfig = {
     strategy: "jwt",
   },
   callbacks: {
-    async session({session, token}) {
+    async session({session, token}: { session: Session; token?: any }) {
       // console.log(`Auth Sess = ${JSON.stringify(session)}`)
       // console.log(`Auth Tok = ${JSON.stringify(token)}`)
       if (token.access_token) {
