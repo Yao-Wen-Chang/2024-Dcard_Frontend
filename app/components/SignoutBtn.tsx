@@ -4,11 +4,13 @@ import { redirect } from 'next/navigation';
 import React from 'react'
 
 const SignoutBtn = () => {
+  const redirectURL = process.env.NODE_ENV === 'production' ? 'https://2024-dcard-frontend.vercel.app/' : 'http://localhost:3000/';
+  
   return (
     <button
       onClick={() => {
         signOut();
-        redirect("http://localhost:3000/")
+        redirect(redirectURL);
       }}
     >
       Sign Out     
